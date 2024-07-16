@@ -1,0 +1,6 @@
+SELECT COUNT(*) AS number_of_shipped_units, pa.POSTAL_CODE 
+FROM shipment s 
+JOIN postal_address pa ON s.DESTINATION_CONTACT_MECH_ID = pa.CONTACT_MECH_ID 
+JOIN shipment_status ss ON s.STATUS_ID = ss.STATUS_ID 
+WHERE ss.STATUS_ID = 'SHIPMENT_SHIPPED'
+GROUP BY pa.POSTAL_CODE;

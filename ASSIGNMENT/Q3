@@ -1,3 +1,3 @@
-SELECT COUNT(*) / 12 AS avg_shipments_per_month
+SELECT COUNT(*) / COUNT(distinct DATE_FORMAT(STATUS_DATE , '%Y-%m')) AS avg_shipments_per_month
 FROM shipment_status ss 
 WHERE STATUS_ID = 'SHIPMENT_SHIPPED' ;

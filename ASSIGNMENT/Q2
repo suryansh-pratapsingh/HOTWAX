@@ -1,0 +1,5 @@
+SELECT STATUS_ID , TRACKING_CODE 
+FROM shipment s 
+JOIN shipment_package_route_seg sprs 
+ON s.SHIPMENT_ID = sprs.SHIPMENT_ID 
+WHERE sprs.TRACKING_CODE IS NOT NULL;

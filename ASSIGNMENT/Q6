@@ -1,0 +1,6 @@
+select sum(oi.UNIT_PRICE * oi.QUANTITY) 
+from order_item_ship_group oisg 
+join order_item oi on oisg.ORDER_ID = oi.ORDER_ID 
+join shipment s on oi.ORDER_ID = S.PRIMARY_ORDER_ID 
+join shipment_status ss on s.SHIPMENT_ID = ss.SHIPMENT_ID 
+where ss.STATUS_ID = 'SHIPMENT_SHIPPED' and FACILITY_ID in (904,906) and ss.STATUS_DATE between '2024-01-01 00:00:00.000' AND '2024-04-01 00:00:00.000';

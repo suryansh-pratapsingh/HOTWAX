@@ -1,0 +1,5 @@
+select sum(srs.ACTUAL_COST)
+from shipment_route_segment srs 
+join shipment s on srs.SHIPMENT_ID = s.SHIPMENT_ID 
+where CREATED_DATE >= now() - interval 1 month 
+

@@ -1,0 +1,5 @@
+select sum(ra.AMOUNT)  
+from return_adjustment ra 
+join return_adjustment_type rat on ra.RETURN_ADJUSTMENT_TYPE_ID = rat.RETURN_ADJUSTMENT_TYPE_ID 
+join return_type rt on ra.RETURN_TYPE_ID = rt.RETURN_TYPE_ID 
+where rt.RETURN_TYPE_ID = 'RTN_REFUND' and rat.RETURN_ADJUSTMENT_TYPE_ID = 'RET_SHIPPING_ADJ' and ra.CREATED_DATE >= now() - interval 1 month  

@@ -1,6 +1,0 @@
-select*
-from order_header oh 
-join shipment s on oh.ORDER_ID = s.PRIMARY_ORDER_ID 
-join shipment_status ss on S.SHIPMENT_ID = SS.SHIPMENT_ID 
-join order_payment_preference opp  on oh.ORDER_ID = opp.ORDER_ID 
-where oh.STATUS_ID = 'ORDER_APPROVED' and ss.STATUS_ID != 'SHIPMENT_SHIPPED'

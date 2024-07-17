@@ -1,0 +1,6 @@
+select date_format(STATUS_DATETIME , '%Y-%m-%d %H:00:00') as hour,count(*) as num_completed_order
+from order_status
+where status_id = 'order_completed'
+group by hour
+order by hour;
+

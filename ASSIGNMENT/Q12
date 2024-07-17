@@ -1,0 +1,7 @@
+select oi.ORDER_ID , oi.QUANTITY , oh.ORIGIN_FACILITY_ID , city
+from order_item oi 
+join order_header oh on oi.ORDER_ID = oh.ORDER_ID 
+join order_contact_mech ocm on oh.ORDER_ID = ocm.ORDER_ID 
+join postal_address pa on ocm.CONTACT_MECH_ID = pa.CONTACT_MECH_ID 
+where QUANTITY > 1 and oi.STATUS_ID = 'ITEM_COMPLETED'
+order by city

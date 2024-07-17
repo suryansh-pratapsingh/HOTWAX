@@ -1,0 +1,6 @@
+select*
+from order_header oh 
+join shipment s on oh.ORDER_ID = s.PRIMARY_ORDER_ID 
+join shipment_status ss on s.STATUS_ID = ss.STATUS_ID 
+join facility f on s.ORIGIN_FACILITY_ID = f.FACILITY_ID 
+where s.STATUS_ID = 'SHIPMENT_SHIPPED' and oh.SALES_CHANNEL_ENUM_ID = 'POS_SALES_CHANNEL' and f.FACILITY_TYPE_ID = 'WAREHOUSE'

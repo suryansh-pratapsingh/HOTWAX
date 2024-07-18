@@ -1,0 +1,8 @@
+select*
+from order_header oh 
+join order_item_ship_group oisg on oh.ORDER_ID = oisg.ORDER_ID 
+join shipment s on oh.ORDER_ID = s.PRIMARY_ORDER_ID 
+join shipment_status ss on s.STATUS_ID = ss.STATUS_ID 
+where oh.STATUS_ID = 'ORDER_APPROVED' and oisg.FACILITY_ID != '%PARKING' and oisg.FACILITY_ID is not NULL and ss.STATUS_ID != 'Shipped';
+
+

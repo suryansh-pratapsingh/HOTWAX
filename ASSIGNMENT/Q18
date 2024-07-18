@@ -1,0 +1,7 @@
+select*
+from order_header oh 
+join shipment s on oh.ORDER_ID = s.PRIMARY_ORDER_ID 
+join shipment_status ss on s.STATUS_ID = ss.STATUS_ID 
+join shipment_route_segment srs on s.SHIPMENT_ID = srs.SHIPMENT_ID 
+join shipment_method_type smt on srs.SHIPMENT_METHOD_TYPE_ID = smt.SHIPMENT_METHOD_TYPE_ID 
+where oh.SALES_CHANNEL_ENUM_ID in ('WEB_SALES_CHANNEL','EBAY_SALES_CHANNEL','EMAIL_SALES_CHANNEL') and ss.STATUS_ID = 'SHIPMENT_SHIPPED' and smt.SHIPMENT_METHOD_TYPE_ID = 'STOREPICKUP'

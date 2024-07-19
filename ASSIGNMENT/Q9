@@ -1,0 +1,5 @@
+select* 
+from order_item oi 
+join order_item_ship_group oisg on oi.ORDER_ID = oisg.ORDER_ID 
+where oi.QUANTITY > 1 
+group by ORDER_ITEM_SEQ_ID 

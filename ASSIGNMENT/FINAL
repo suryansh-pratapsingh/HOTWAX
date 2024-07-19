@@ -1,0 +1,281 @@
+1. Total number of shipments in January 2022 first quarter:  
+   Determine the total count of shipments made during the first quarter of 2022, specifically in the month of January.
+
+--  JAN
+SELECT count(*) AS TOTAL_SHIPMENT_NO
+FROM shipment_status ss
+WHERE STATUS_ID = 'SHIPMENT_SHIPPED' AND  STATUS_DATE BETWEEN '2022-01-01 0:0:0.000' AND '2022-01-31 0:0:0.000';
+
+-- QUARTER
+SELECT count(*) AS TOTAL_SHIPMENT_NO
+FROM shipment_status ss
+WHERE STATUS_ID = 'SHIPMENT_SHIPPED' AND  STATUS_DATE BETWEEN '2022-01-01 0:0:0.000' AND '2022-03-31 0:0:0.000';
+
+   OUTPUT
+
+
+
+
+
+
+2. Shipment by Tracking number:  
+   View or analyze shipments based on their unique tracking numbers. Each shipment is identified and tracked using a specific tracking number.
+SELECT s.SHIPMENT_ID , TRACKING_CODE
+FROM shipment s
+JOIN shipment_package_route_seg sprs
+ON s.SHIPMENT_ID = sprs.SHIPMENT_ID
+WHERE sprs.TRACKING_CODE IS NOT NULL;
+
+
+   OUTPUT
+
+
+3. Average number of shipments per month:  
+   Calculate the average number of shipments made per month by dividing the total number of shipments by the number of months.
+
+SELECT COUNT(*) / COUNT(distinct DATE_FORMAT(STATUS_DATE , '%Y-%m')) AS avg_shipments_per_month
+FROM shipment_status ss
+WHERE STATUS_ID = 'SHIPMENT_SHIPPED' ;
+
+
+   OUTPUT
+
+
+
+4. Shipped units By Location:  
+   Identify the number of units that have been shipped, categorized by different locations. Gain insights into the distribution of shipped units across various locations.
+SELECT COUNT(*) AS number_of_shipped_units, pa.POSTAL_CODE
+FROM shipment s
+JOIN postal_address pa ON s.DESTINATION_CONTACT_MECH_ID = pa.CONTACT_MECH_ID
+JOIN shipment_status ss ON s.SHIPMENT_ID = ss.SHIPMENT_ID
+WHERE ss.STATUS_ID = 'SHIPMENT_SHIPPED'
+GROUP BY pa.POSTAL_CODE;
+
+
+   OUTPUT
+
+
+I TOOK THE SHIPMENT STATUS THROUHG ITS OWN ENETITY CAUSE THE RESULTS WERE DIFFRENT 
+
+SECOND QUERRY
+
+
+SELECT COUNT(s.SHIPMENT_ID) AS number_of_shipped_units, S.ORIGIN_FACILITY_ID
+FROM shipment s
+JOIN shipment_status ss ON s.SHIPMENT_ID = ss.SHIPMENT_ID
+WHERE ss.STATUS_ID = 'SHIPMENT_SHIPPED'
+GROUP BY S.ORIGIN_FACILITY_ID
+ 
+OUTPUT
+
+
+
+
+
+
+5. Last week imported orders & items count:  
+   Identify and count the orders and items that were imported in the system during the last week.
+
+-- Identify orders and items that were imported in the system during the last week.
+select *
+from order_header oh
+join order_item oi on oh.ORDER_ID = oi.ORDER_ID
+where  ENTRY_DATE >= now() - interval 1 week
+-- count of the orders that were imported in the system during the last week.
+select count(oh.ORDER_ID) as Total_Orders_lw
+from order_header oh
+join order_item oi on oh.ORDER_ID = oi.ORDER_ID
+where  ENTRY_DATE >= now() - interval 1 week
+-- count the orders items that were imported in the system during the last week.
+select count(oi.ORDER_ITEM_SEQ_ID) as Total_Orders_item_lw
+from order_header oh
+join order_item oi on oh.ORDER_ID = oi.ORDER_ID
+where  ENTRY_DATE >= now() - interval 1 week
+
+   OUTPUT
+-- Identify orders and items that were imported in the system during the last week.
+
+
+-- count of the orders that were imported in the system during the last week.
+
+
+-- count the orders items that were imported in the system during the last week.
+
+
+6. Total $ value of shipments shipped from facility 904/906 to first quarter: 
+   Calculate the total monetary value of shipments that originated from facilities 904 and 906 during the first quarter.
+select sum(oi.UNIT_PRICE * oi.QUANTITY) as  Total_$_value
+from order_item_ship_group going
+join order_item oi on oisg.ORDER_ID = oi.ORDER_ID
+join shipment s on oi.ORDER_ID = S.PRIMARY_ORDER_ID
+join shipment_status ss on s.SHIPMENT_ID = ss.SHIPMENT_ID
+where ss.STATUS_ID = 'SHIPMENT_SHIPPED' and FACILITY_ID in (904,906) and ss.STATUS_DATE between '2024-01-01 00:00:00.000' AND '2024-04-01 00:00:00.000';
+ 
+
+   OUTPUT
+
+
+SECOND QUERY
+
+select sum(oi.UNIT_PRICE * oi.QUANTITY) as  Total_$_value
+from order_item_ship_group oisg
+join order_item oi on oisg.ORDER_ID = oi.ORDER_ID
+join shipment s on oi.ORDER_ID = S.PRIMARY_ORDER_ID
+join shipment_status ss on s.SHIPMENT_ID = ss.SHIPMENT_ID
+where ss.STATUS_ID = 'SHIPMENT_SHIPPED' and s.ORIGIN_FACILITY_ID in (904,906) and ss.STATUS_DATE between '2024-01-01 00:00:00.000' AND '2024-04-01 00:00:00.000';
+OUTPUT
+
+
+
+
+7. Payment captured but not shipped order items:  
+   Identify orders where payment has been captured, but the items have not been shipped yet or shipment has not yet been created/initiated.
+
+select*
+from order_header oh
+join shipment s on oh.ORDER_ID = s.PRIMARY_ORDER_ID
+join shipment_status ss on S.SHIPMENT_ID = SS.SHIPMENT_ID
+join order_payment_preference opp  on oh.ORDER_ID = opp.ORDER_ID
+where oh.STATUS_ID = 'ORDER_APPROVED' and ss.STATUS_ID != 'SHIPMENT_SHIPPED' and opp.STATUS_ID = 'PAYMENT_RECEIVED'
+
+
+
+   OUTPUT
+
+
+
+8. Orders that have more than one item in a single ship group:  
+   Find orders where multiple items are grouped and shipped together in a single shipment.
+
+select*
+from order_item oi
+join order_item_ship_group oisg on oi.ORDER_ID = oisg.ORDER_ID
+where oi.QUANTITY > 1 and oisg.SHIP_GROUP_SEQ_ID > 1
+group by oisg.SHIP_GROUP_SEQ_ID
+
+
+   OUTPUT
+
+
+
+
+9. Find orders where multiple items are grouped and shipped together in a single shipment:
+
+
+
+    OUTPUT
+
+10. Orders brokered but not shipped:  
+   Identify orders that have been brokered (arranged or negotiated) but have not been shipped yet or shipment has not yet been created/initiated.
+select*
+from order_header oh
+join order_item_ship_group oisg on oh.ORDER_ID = oisg.ORDER_ID
+join shipment s on oh.ORDER_ID = s.PRIMARY_ORDER_ID
+join shipment_status ss on s.SHIPMENT_ID = ss.SHIPMENT_ID
+where oh.STATUS_ID = 'ORDER_APPROVED' and oisg.FACILITY_ID is not NULL and ss.STATUS_ID != 'Shipped';
+
+
+
+
+   OUTPUT
+
+11.Orders completed hourly:
+Analyze and present the distribution of completed orders on an hourly basis.
+select date_format(STATUS_DATETIME , '%Y-%m-%d %H:00:00') as hour,count(*) as num_completed_order
+from order_status
+where status_id = 'order_completed'
+group by hour
+order by hour;
+
+OUTPUT
+
+
+
+12. Maximum units fulfilled by location:  
+    Identify the location that has fulfilled the maximum number of units. This provides insights into the efficiency of different fulfillment centers.
+
+select oisg.FACILITY_ID , count(oh.ORDER_ID) as num_of_fullfilled_unit 
+from order_header oh
+join order_item_ship_group oisg  on oh.ORDER_ID = oisg.ORDER_ID
+join facility f on oisg.FACILITY_ID = f.FACILITY_ID
+join facility_type ft on f.FACILITY_TYPE_ID = ft.FACILITY_TYPE_ID
+where oh.STATUS_ID = 'ORDER_COMPLETED' and f.FACILITY_ID is not null and ft.PARENT_TYPE_ID !='VIRTUAL_FACILITY'
+group by FACILITY_ID
+order by num_of_fullfilled_unit desc ;
+
+
+    OUTPUT
+
+
+
+13. Facility wise Revenue for (SM Store):  
+    Break down the revenue generated by each store. This helps in understanding the contribution of individual stores to the overall revenue.
+select psf.FACILITY_ID , sum(oi.UNIT_PRICE * oi.QUANTITY) as revenue
+from product_store ps
+join product_store_facility psf on ps.PRODUCT_STORE_ID = psf.PRODUCT_STORE_ID
+join inventory_item ii on psf.FACILITY_ID = ii.FACILITY_ID
+join inventory_item_detail iid on ii.INVENTORY_ITEM_ID = iid.INVENTORY_ITEM_ID
+join order_item oi on iid.ORDER_ID = oi.ORDER_ID
+where ps.PRODUCT_STORE_ID = 'SM_STORE'
+group by psf.FACILITY_ID
+
+
+    OUTPUT
+
+
+14. Shipping Refund in the last month:  
+    Calculate the refunds issued specifically for shipping charges in the last month.
+select sum(ra.AMOUNT) 
+from return_adjustment ra
+join return_adjustment_type rat on ra.RETURN_ADJUSTMENT_TYPE_ID = rat.RETURN_ADJUSTMENT_TYPE_ID
+join return_type rt on ra.RETURN_TYPE_ID = rt.RETURN_TYPE_ID
+where rt.RETURN_TYPE_ID = 'RTN_REFUND' and rat.RETURN_ADJUSTMENT_TYPE_ID = 'RET_SHIPPING_ADJ' and ra.CREATED_DATE >= now() - interval 1 month 
+
+
+    OUTPUT
+
+
+15. Shipping Revenue last month:  
+    Determine the total revenue generated from shipping in the last month.
+
+select sum(srs.ACTUAL_COST)
+from shipment_route_segment srs
+join shipment s on srs.SHIPMENT_ID = s.SHIPMENT_ID
+where CREATED_DATE >= now() - interval 1 month
+
+    OUTPUT
+
+
+16. Send sale orders shipped from the warehouse:  
+    Identify send sale orders that have been shipped from the warehouse.
+select*
+from order_header oh
+join shipment s on oh.ORDER_ID = s.PRIMARY_ORDER_ID
+join shipment_status ss on s.SHIPMENT_ID = ss.SHIPMENT_ID
+join facility f on s.ORIGIN_FACILITY_ID = f.FACILITY_ID
+where s.STATUS_ID = 'SHIPMENT_SHIPPED' and oh.SALES_CHANNEL_ENUM_ID = 'POS_SALES_CHANNEL' and f.FACILITY_TYPE_ID = 'WAREHOUSE'
+
+
+    OUTPUT
+
+17. BOPIS orders Revenue in the last year:  
+    Calculate the revenue generated from BOPIS orders over the past year.
+select sum(sq.GRAND_TOTAL)
+from
+(select distinct oh.ORDER_ID  , GRAND_TOTAL
+from order_header oh
+join shipment s on oh.ORDER_ID = s.PRIMARY_ORDER_ID
+join shipment_status ss on s.SHIPMENT_ID = ss.SHIPMENT_ID
+join shipment_route_segment srs on s.SHIPMENT_ID = srs.SHIPMENT_ID
+where oh.SALES_CHANNEL_ENUM_ID in ('WEB_SALES_CHANNEL') and
+ss.STATUS_ID = 'SHIPMENT_SHIPPED' and
+srs.SHIPMENT_METHOD_TYPE_ID = 'STOREPICKUP' and
+oh.ORDER_DATE >= now()- interval 1 year) as sq
+
+
+
+
+    OUTPUT
+
+
+
